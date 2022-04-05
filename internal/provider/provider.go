@@ -3,9 +3,13 @@ package provider
 import (
 	"context"
 
+	"github.com/Azure/azure-sdk-for-go/services/keyvault/2016-10-01/keyvault"
+	"github.com/Azure/go-autorest/autorest/azure/auth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+var diags diag.Diagnostics
 
 func init() {
 	// Set descriptions to support markdown syntax, this will be used in document generation
@@ -26,11 +30,29 @@ func init() {
 func New(version string) func() *schema.Provider {
 	return func() *schema.Provider {
 		p := &schema.Provider{
+			Schema: map[string]*schema.Schema{
+				"tenant_id": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					DefaultFunc: schema.EnvDefaultFunc("KEYVAULT_TENANT_ID", nil),
+				},
+				"client_id": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					DefaultFunc: schema.EnvDefaultFunc("KEYVAULT_CLIENT_ID", nil),
+				},
+				"client_secret": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Sensitive:   true,
+					DefaultFunc: schema.EnvDefaultFunc("KEYVAULT_CLIENT_SECRET", nil),
+				},
+			},
 			DataSourcesMap: map[string]*schema.Resource{
-				"scaffolding_data_source": dataSourceScaffolding(),
+				"azurekeyvault_secret": dataSourceSecret(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
-				"scaffolding_resource": resourceScaffolding(),
+				"azurekeyvault_secret": resourceSecret(),
 			},
 		}
 
@@ -40,18 +62,31 @@ func New(version string) func() *schema.Provider {
 	}
 }
 
-type apiClient struct {
-	// Add whatever fields, client or connection info, etc. here
-	// you would need to setup to communicate with the upstream
-	// API.
-}
+// type apiClient struct {
+// 	KeyVault *keyvault.Client
+// }
 
 func configure(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	return func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
+	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		// Setup a User-Agent for your API client (replace the provider name for yours):
 		// userAgent := p.UserAgent("terraform-provider-scaffolding", version)
 		// TODO: myClient.UserAgent = userAgent
 
-		return &apiClient{}, nil
+		tenantID := d.Get("tenant_id").(string)
+		clientID := d.Get("client_id").(string)
+		clientSecret := d.Get("client_secret").(string)
+
+		clientCredentialCfg := auth.NewClientCredentialsConfig(clientID, clientSecret, tenantID)
+		clientCredentialCfg.Resource = "https://vault.azure.net"
+		authorizer, err := clientCredentialCfg.Authorizer()
+		if err != nil {
+			diags = append(diags, diag.Errorf("unable to create autorest authorizer: %v", err)...)
+			return nil, diags
+		}
+
+		kvClient := keyvault.New()
+		kvClient.Authorizer = authorizer
+
+		return kvClient, diags
 	}
 }
