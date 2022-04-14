@@ -8,19 +8,15 @@ import (
 
 	"github.com/tiwood/terraform-provider-azurekeyvault/internal/provider/parse"
 	"github.com/tiwood/terraform-provider-azurekeyvault/internal/provider/tags"
-
-	//"github.com/tiwood/terraform-provider-azurekeyvault/internal/provider/tags"
 	"github.com/tiwood/terraform-provider-azurekeyvault/internal/provider/utils"
 
-	"github.com/Azure/azure-sdk-for-go/services/keyvault/2016-10-01/keyvault"
+	"github.com/Azure/azure-sdk-for-go/services/keyvault/v7.1/keyvault"
 	"github.com/Azure/go-autorest/autorest/date"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
-
-// var diags diag.Diagnostics
 
 func resourceSecret() *schema.Resource {
 	return &schema.Resource{
@@ -37,11 +33,13 @@ func resourceSecret() *schema.Resource {
 				Description: "Sample attribute.",
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 			},
 			"name": {
 				Description: "Sample attribute.",
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 			},
 			"value": {
 				Description: "Sample attribute.",

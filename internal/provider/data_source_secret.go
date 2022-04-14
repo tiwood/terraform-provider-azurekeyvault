@@ -8,7 +8,8 @@ import (
 	"github.com/tiwood/terraform-provider-azurekeyvault/internal/provider/parse"
 	"github.com/tiwood/terraform-provider-azurekeyvault/internal/provider/tags"
 
-	"github.com/Azure/azure-sdk-for-go/services/keyvault/2016-10-01/keyvault"
+	//"github.com/Azure/azure-sdk-for-go/services/keyvault/2016-10-01/keyvault"
+	"github.com/Azure/azure-sdk-for-go/services/keyvault/v7.1/keyvault"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )

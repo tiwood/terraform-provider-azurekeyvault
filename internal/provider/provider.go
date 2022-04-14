@@ -3,7 +3,8 @@ package provider
 import (
 	"context"
 
-	"github.com/Azure/azure-sdk-for-go/services/keyvault/2016-10-01/keyvault"
+	//"github.com/Azure/azure-sdk-for-go/services/keyvault/2016-10-01/keyvault"
+	"github.com/Azure/azure-sdk-for-go/services/keyvault/v7.1/keyvault"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -52,6 +53,7 @@ func New(version string) func() *schema.Provider {
 				"azurekeyvault_secret": dataSourceSecret(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
+				"azurekeyvault_certificate": resourceCertificate(),
 				"azurekeyvault_secret": resourceSecret(),
 			},
 		}
