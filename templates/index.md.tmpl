@@ -1,0 +1,19 @@
+---
+layout: ""
+page_title: "Provider: azurekeyvault"
+description: |-
+  The azurekeyvault provider allows direct interaction with the Azure Key Vault data plane.
+---
+
+# azurekeyvault Provider
+
+This provider is mostly a direct copy of the `Azure Key Vault` related resources
+from the official `azurerm` provider. The main difference is, you dont have to
+specify a `subscription_id` during provider initialization, which enables you
+to create Key Vault resources in multiple Key Vaults, spanning `n` Azure subscriptions.
+
+## Example Usage
+
+{{tffile "examples/provider/provider.tf"}}
+
+{{ .SchemaMarkdown | trimspace }}
