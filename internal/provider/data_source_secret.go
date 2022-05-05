@@ -8,7 +8,6 @@ import (
 	"github.com/tiwood/terraform-provider-azurekeyvault/internal/provider/parse"
 	"github.com/tiwood/terraform-provider-azurekeyvault/internal/provider/tags"
 
-	//"github.com/Azure/azure-sdk-for-go/services/keyvault/2016-10-01/keyvault"
 	"github.com/Azure/azure-sdk-for-go/services/keyvault/v7.1/keyvault"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,47 +15,51 @@ import (
 
 func dataSourceSecret() *schema.Resource {
 	return &schema.Resource{
-		// This description is used by the documentation generator and the language server.
-		Description: "Sample data source in the Terraform provider scaffolding.",
+		Description: "Use this data source to access information about an existing Key Vault Secret.",
 
 		ReadContext: dataSourceSecretRead,
 
 		Schema: map[string]*schema.Schema{
 			"key_vault_name": {
-				Description: "Sample attribute.",
+				Description: "The name of the target Key Vault.",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
 			"name": {
-				Description: "Sample attribute.",
+				Description: "Specifies the name of the Key Vault Secret.",
 				Type:        schema.TypeString,
 				Required:    true,
 			},
 			"value": {
-				Description: "Sample attribute.",
+				Description: "Specifies the value of the Key Vault Secret.",
 				Type:        schema.TypeString,
 				Computed:    true,
 				Sensitive:   true,
 			},
 			"content_type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Specifies the content type for the Key Vault Secret.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"not_before": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Secret not usable before the provided UTC datetime `(Y-m-d'T'H:M:S'Z')`",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"not_after": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Secret not usable after the provided UTC datetime `(Y-m-d'T'H:M:S'Z')`",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"version": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The current version of the Key Vault Secret.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"versionless_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The Base ID of the Key Vault Secret.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"tags": tags.SchemaDataSource(),
 		},
@@ -97,7 +100,6 @@ func dataSourceSecretRead(ctx context.Context, d *schema.ResourceData, meta inte
 			d.Set("not_after", time.Time(*v).Format(time.RFC3339))
 		}
 	}
-
 
 	return tags.FlattenAndSet(d, r.Tags)
 }

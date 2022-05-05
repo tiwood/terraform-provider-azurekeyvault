@@ -1,6 +1,5 @@
 # github.com/Azure/azure-sdk-for-go v63.0.0+incompatible
 ## explicit
-github.com/Azure/azure-sdk-for-go/services/keyvault/2016-10-01/keyvault
 github.com/Azure/azure-sdk-for-go/services/keyvault/v7.1/keyvault
 github.com/Azure/azure-sdk-for-go/version
 # github.com/Azure/go-autorest v14.2.0+incompatible

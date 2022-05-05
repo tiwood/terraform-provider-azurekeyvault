@@ -17,7 +17,6 @@ import (
 	"github.com/tiwood/terraform-provider-azurekeyvault/internal/provider/tags"
 	"github.com/tiwood/terraform-provider-azurekeyvault/internal/provider/utils"
 
-	//"github.com/Azure/azure-sdk-for-go/services/keyvault/2016-10-01/keyvault"
 	"github.com/Azure/azure-sdk-for-go/services/keyvault/v7.1/keyvault"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -28,8 +27,7 @@ import (
 
 func resourceCertificate() *schema.Resource {
 	return &schema.Resource{
-		// This description is used by the documentation generator and the language server.
-		Description: "Sample resource in the Terraform provider scaffolding.",
+		Description: "This resource manages Azure Key Vault certificates",
 
 		CreateContext: resourceCertificateCreate,
 		ReadContext:   resourceCertificateRead,
@@ -38,13 +36,13 @@ func resourceCertificate() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"key_vault_name": {
-				Description: "Sample attribute.",
+				Description: "The name of the target Key Vault.",
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 			},
 			"name": {
-				Description: "Sample attribute.",
+				Description: "Specifies the name of the Key Vault Certificate.",
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
@@ -61,6 +59,7 @@ func resourceCertificate() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"contents": {
+							Description:  "The base64-encoded certificate contents.",
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
@@ -68,10 +67,11 @@ func resourceCertificate() *schema.Resource {
 							ValidateFunc: validation.StringIsNotEmpty,
 						},
 						"password": {
-							Type:      schema.TypeString,
-							Optional:  true,
-							ForceNew:  true,
-							Sensitive: true,
+							Description: "The password associated with the certificate.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Sensitive:   true,
 						},
 					},
 				},
@@ -95,9 +95,10 @@ func resourceCertificate() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Description: "The name of the Certificate Issuer. Possible values include `Self` (for self-signed certificate), or `Unknown` (for a certificate issuing authority like `Let's Encrypt` and Azure direct supported ones).",
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
 									},
 								},
 							},
@@ -109,10 +110,11 @@ func resourceCertificate() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"curve": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Description: "Specifies the curve to use when creating an `EC` key. Possible values are `P-256`, `P-256K`, `P-384`, and `P-521`. This field will be required in a future release if `key_type` is `EC` or `EC-HSM`.",
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
 										ValidateFunc: validation.StringInSlice([]string{
 											string(keyvault.P256),
 											string(keyvault.P256K),
@@ -121,15 +123,17 @@ func resourceCertificate() *schema.Resource {
 										}, false),
 									},
 									"exportable": {
-										Type:     schema.TypeBool,
-										Required: true,
-										ForceNew: true,
+										Description: "Enable if the certificate should be exportable.",
+										Type:        schema.TypeBool,
+										Required:    true,
+										ForceNew:    true,
 									},
 									"key_size": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Description: "The size of the key used in the certificate. Possible values include `2048`, `3072`, and `4096` for `RSA` keys, or `256`, `384`, and `521` for `EC` keys. This property is required when using `RSA` keys.",
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
 										ValidateFunc: validation.IntInSlice([]int{
 											256,
 											384,
@@ -140,9 +144,10 @@ func resourceCertificate() *schema.Resource {
 										}),
 									},
 									"key_type": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Description: "Specifies the type of key, such as `RSA` or `EC`.",
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
 										ValidateFunc: validation.StringInSlice([]string{
 											string(keyvault.EC),
 											string(keyvault.ECHSM),
@@ -153,9 +158,10 @@ func resourceCertificate() *schema.Resource {
 										DiffSuppressFunc: suppress.CaseDifference,
 									},
 									"reuse_key": {
-										Type:     schema.TypeBool,
-										Required: true,
-										ForceNew: true,
+										Description: "Enable if thek key should be reusable.",
+										Type:        schema.TypeBool,
+										Required:    true,
+										ForceNew:    true,
 									},
 								},
 							},
@@ -172,9 +178,10 @@ func resourceCertificate() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"action_type": {
-													Type:     schema.TypeString,
-													Required: true,
-													ForceNew: true,
+													Description: "The Type of action to be performed when the lifetime trigger is triggered. Possible values include `AutoRenew` and `EmailContacts`.",
+													Type:        schema.TypeString,
+													Required:    true,
+													ForceNew:    true,
 													ValidateFunc: validation.StringInSlice([]string{
 														string(keyvault.AutoRenew),
 														string(keyvault.EmailContacts),
@@ -191,14 +198,16 @@ func resourceCertificate() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"days_before_expiry": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													ForceNew: true,
+													Description: "The number of days before the Certificate expires that the action associated with this Trigger should run.",
+													Type:        schema.TypeInt,
+													Optional:    true,
+													ForceNew:    true,
 												},
 												"lifetime_percentage": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													ForceNew: true,
+													Description: "The percentage at which during the Certificates Lifetime the action associated with this Trigger should run.",
+													Type:        schema.TypeInt,
+													Optional:    true,
+													ForceNew:    true,
 												},
 											},
 										},
@@ -213,9 +222,10 @@ func resourceCertificate() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"content_type": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Description: "The Content-Type of the Certificate, such as `application/x-pkcs12` for a PFX or `application/x-pem-file` for a PEM.",
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
 									},
 								},
 							},
@@ -229,19 +239,21 @@ func resourceCertificate() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"extended_key_usage": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Description: "A list of Extended/Enhanced Key Usages.",
+										Type:        schema.TypeList,
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
 										Elem: &schema.Schema{
 											Type:         schema.TypeString,
 											ValidateFunc: validation.StringIsNotEmpty,
 										},
 									},
 									"key_usage": {
-										Type:     schema.TypeSet,
-										Required: true,
-										ForceNew: true,
+										Description: "A list of uses associated with this Key. Possible values include `cRLSign`, `dataEncipherment`, `decipherOnly`, `digitalSignature`, `encipherOnly`, `keyAgreement`, `keyCertSign`, `keyEncipherment` and `nonRepudiation` and are case-sensitive. ",
+										Type:        schema.TypeSet,
+										Required:    true,
+										ForceNew:    true,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 											ValidateFunc: validation.StringInSlice([]string{
@@ -258,9 +270,10 @@ func resourceCertificate() *schema.Resource {
 										},
 									},
 									"subject": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Description: "The Certificate's Subject.",
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
 									},
 									"subject_alternative_names": {
 										Type:     schema.TypeList,
@@ -271,9 +284,10 @@ func resourceCertificate() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"emails": {
-													Type:     schema.TypeSet,
-													Optional: true,
-													ForceNew: true,
+													Description: "A list of email addresses identified by this Certificate.",
+													Type:        schema.TypeSet,
+													Optional:    true,
+													ForceNew:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -285,9 +299,10 @@ func resourceCertificate() *schema.Resource {
 													},
 												},
 												"dns_names": {
-													Type:     schema.TypeSet,
-													Optional: true,
-													ForceNew: true,
+													Description: "A list of alternative DNS names (FQDNs) identified by the Certificate",
+													Type:        schema.TypeSet,
+													Optional:    true,
+													ForceNew:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -299,9 +314,10 @@ func resourceCertificate() *schema.Resource {
 													},
 												},
 												"upns": {
-													Type:     schema.TypeSet,
-													Optional: true,
-													ForceNew: true,
+													Description: "A list of User Principal Names identified by the Certificate.",
+													Type:        schema.TypeSet,
+													Optional:    true,
+													ForceNew:    true,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -316,9 +332,10 @@ func resourceCertificate() *schema.Resource {
 										},
 									},
 									"validity_in_months": {
-										Type:     schema.TypeInt,
-										Required: true,
-										ForceNew: true,
+										Description: "The Certificates Validity Period in Months.",
+										Type:        schema.TypeInt,
+										Required:    true,
+										ForceNew:    true,
 									},
 								},
 							},
@@ -332,75 +349,83 @@ func resourceCertificate() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"created": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The Certificates time of creation",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 
 						"enabled": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Description: "Whether the Key Vault Certificate is enabled.",
+							Type:        schema.TypeBool,
+							Computed:    true,
 						},
 
 						"expires": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The expiration time of the Certificate.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 
 						"not_before": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The not before valid time of the Key Vault Certificate.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 
 						"recovery_level": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The deletion recovery level of the Key Vault Certificate.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 
 						"updated": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The recent update time of the Key Vault Certificate.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"version": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The current version of the Key Vault Certificate.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
-
 			"secret_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The ID of the associated Key Vault Secret.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
-
 			"versionless_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The Base ID of the Key Vault Certificate.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
-
 			"versionless_secret_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The Base ID of the Key Vault Secret.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
-
 			"certificate_data": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The raw Key Vault Certificate data represented as a hexadecimal string.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
-
 			"certificate_data_base64": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The Base64 encoded Key Vault Certificate data.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
-
 			"thumbprint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The X509 Thumbprint of the Key Vault Certificate represented as a hexadecimal string.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"purge_on_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Description: "Whether the Certificate should be purged during destroy.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
 			},
 			"tags": tags.Schema(),
 		},

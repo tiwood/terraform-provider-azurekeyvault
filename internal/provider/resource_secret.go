@@ -20,8 +20,7 @@ import (
 
 func resourceSecret() *schema.Resource {
 	return &schema.Resource{
-		// This description is used by the documentation generator and the language server.
-		Description: "Sample resource in the Terraform provider scaffolding.",
+		Description: "Manages a Key Vault Secret.",
 
 		CreateContext: resourceSecretCreate,
 		ReadContext:   resourceSecretRead,
@@ -30,47 +29,53 @@ func resourceSecret() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"key_vault_name": {
-				Description: "Sample attribute.",
+				Description: "The name of the target Key Vault.",
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 			},
 			"name": {
-				Description: "Sample attribute.",
+				Description: "Specifies the name of the Key Vault Secret.",
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 			},
 			"value": {
-				Description: "Sample attribute.",
+				Description: "Specifies the value of the Key Vault Secret.",
 				Type:        schema.TypeString,
 				Required:    true,
 				Sensitive:   true,
 			},
 			"content_type": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "Specifies the content type for the Key Vault Secret.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"not_before": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "Secret not usable before the provided UTC datetime `(Y-m-d'T'H:M:S'Z')`",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"not_after": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "Secret not usable after the provided UTC datetime `(Y-m-d'T'H:M:S'Z')`",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"version": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The current version of the Key Vault Secret.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"versionless_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The Base ID of the Key Vault Secret.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"purge_on_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Description: "Whether the Certificate should be purged during destroy.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
 			},
 			"tags": tags.Schema(),
 		},
