@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -132,6 +133,11 @@ func resourceSecretRead(ctx context.Context, d *schema.ResourceData, meta interf
 
 	r, err := client.GetSecret(ctx, parsedFromState.KeyVaultBaseUrl, parsedFromState.Name, "")
 	if err != nil {
+		if utils.ResponseWasNotFound(r.Response) {
+			log.Printf("[DEBUG] Secret %q was not found in Key Vault at URI %q - removing from state", parsedFromState.Name, parsedFromState.KeyVaultBaseUrl)
+			d.SetId("")
+			return nil
+		}
 		diags = append(diags, diag.Errorf("unable to read secret: %v", err)...)
 		return diags
 	}

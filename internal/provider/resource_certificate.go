@@ -515,6 +515,11 @@ func resourceCertificateRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	r, err := client.GetCertificate(ctx, parsedFromState.KeyVaultBaseUrl, parsedFromState.Name, "")
 	if err != nil {
+		if utils.ResponseWasNotFound(r.Response) {
+			log.Printf("[DEBUG] Certificate %q was not found in Key Vault at URI %q - removing from state", parsedFromState.Name, parsedFromState.KeyVaultBaseUrl)
+			d.SetId("")
+			return nil
+		}
 		diags = append(diags, diag.Errorf("unable to read certificate: %v", err)...)
 		return diags
 	}
